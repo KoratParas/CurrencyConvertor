@@ -1,5 +1,8 @@
 import Config from 'react-native-config';
-
+/**
+ * API call to get the conversion rates for the specified base and target currencies.
+ *
+ */
 export const getLatestCurrencyConversionRates = async (
   baseCurrencyName: string,
   targetCurrenciesSymbols: string[],

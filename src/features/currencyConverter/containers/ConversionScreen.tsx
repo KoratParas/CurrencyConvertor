@@ -1,5 +1,5 @@
 import React, {FC, useEffect, useState} from 'react';
-import {StyleProp, StyleSheet, Text, View, ViewStyle} from 'react-native';
+import {ScrollView, StyleProp, StyleSheet, ViewStyle} from 'react-native';
 import {getLatestCurrencyConversionRates} from '../../../services/api';
 import {
   BASE_CURRENCY,
@@ -8,9 +8,12 @@ import {
   TARGET_CURRENCIES,
 } from '../../../utils/constants';
 import {
+  cleanCommas,
   getStoredCurrencyConversionRates,
   storeCurrencyConversionRates,
 } from '../../../utils/helpers';
+import CurrencyDetailContainer from '../components/CurrencyDetailContainer';
+import CurrencyInputBox from '../components/CurrencyInputBox';
 
 interface Props {
   style?: StyleProp<ViewStyle>;
@@ -18,7 +21,13 @@ interface Props {
 
 const ConversionScreen: FC<Props> = ({style}) => {
   const [currencyRates, setCurrencyRates] = useState<CurrencyRates>({});
+  const [conversionAmounts, setConversionAmounts] = useState<CurrencyRates>({});
+  const [amount, setAmount] = useState<string>('');
 
+  /**
+   * To fetch the latest currency conversion rates from API and store in cache if cache is empty
+   * otherwise fetch from cache
+   * */
   useEffect(() => {
     const fetchCurrencyConversionRates = async () => {
       try {
@@ -45,24 +54,60 @@ const ConversionScreen: FC<Props> = ({style}) => {
     fetchCurrencyConversionRates();
   }, []);
 
+  /**
+   * Convert the amount entered by the user to the selected currencies
+   * */
+  const onConvertCurrencyPress = () => {
+    const convertedAmounts: CurrencyRates = {};
+    TARGET_CURRENCIES.forEach(currency => {
+      const rate = currencyRates[currency];
+      convertedAmounts[currency] = rate * parseFloat(cleanCommas(amount));
+    });
+    setConversionAmounts(convertedAmounts);
+  };
+
   return (
-    <View style={[styles.container, style]}>
+    <ScrollView
+      style={[styles.container, style]}
+      keyboardShouldPersistTaps={'handled'}>
+      <CurrencyInputBox
+        amount={amount}
+        setAmount={setAmount}
+        onConvertPress={onConvertCurrencyPress}
+        containerStyle={styles.borderBox}
+      />
       {TARGET_CURRENCIES.map(currency => {
         const rate = currencyRates[currency];
+        const conversionAmount = conversionAmounts[currency];
         return (
-          <View key={currency}>
-            <Text>{currency}</Text>
-            <Text>{rate ? rate.toFixed(2) : 0}</Text>
-          </View>
+          <CurrencyDetailContainer
+            currencyName={currency}
+            convertedAmount={conversionAmount}
+            key={currency}
+            conversionRate={rate}
+            containerStyle={styles.borderBox}
+          />
         );
       })}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  borderBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    height: 60,
+    borderColor: '#D3D3D3',
   },
 });
 
