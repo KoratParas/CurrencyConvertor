@@ -1,0 +1,4 @@
+Currency Converter
+
+BASE CURRENCY - "AUD"
+TARGET CURRENCY - "INR" "CAD" "USD" "GBP" "ANZ"
