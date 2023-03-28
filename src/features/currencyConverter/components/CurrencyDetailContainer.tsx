@@ -23,7 +23,7 @@ const CurrencyDetailContainer: FC<Props> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       <Text>{currencyName}</Text>
-      {convertedAmount && (
+      {convertedAmount ? (
         <View>
           <Text style={styles.convertedAmountLabel}>
             {currencySymbol} {convertedAmount}
@@ -32,7 +32,7 @@ const CurrencyDetailContainer: FC<Props> = ({
             1 AUD = {conversionRate} {currencyName}
           </Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 };

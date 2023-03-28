@@ -8,6 +8,7 @@ import {
   TARGET_CURRENCIES,
 } from '../../../utils/constants';
 import {
+  checkIncorrectInput,
   cleanCommas,
   getStoredCurrencyConversionRates,
   storeCurrencyConversionRates,
@@ -23,6 +24,7 @@ const ConversionScreen: FC<Props> = ({style}) => {
   const [currencyRates, setCurrencyRates] = useState<CurrencyRates>({});
   const [conversionAmounts, setConversionAmounts] = useState<CurrencyRates>({});
   const [amount, setAmount] = useState<string>('');
+  const [hasError, setHasError] = useState<boolean>(false);
 
   /**
    * To fetch the latest currency conversion rates from API and store in cache if cache is empty
@@ -58,6 +60,15 @@ const ConversionScreen: FC<Props> = ({style}) => {
    * Convert the amount entered by the user to the selected currencies
    * */
   const onConvertCurrencyPress = () => {
+    if (
+      !cleanCommas(amount) ||
+      parseFloat(cleanCommas(amount)) === 0 ||
+      checkIncorrectInput(amount)
+    ) {
+      setConversionAmounts({});
+      setHasError(true);
+      return;
+    }
     const convertedAmounts: CurrencyRates = {};
     TARGET_CURRENCIES.forEach(currency => {
       const rate = currencyRates[currency];
@@ -75,10 +86,12 @@ const ConversionScreen: FC<Props> = ({style}) => {
         setAmount={setAmount}
         onConvertPress={onConvertCurrencyPress}
         containerStyle={styles.borderBox}
+        setHasError={setHasError}
+        hasError={hasError}
       />
       {TARGET_CURRENCIES.map(currency => {
-        const rate = currencyRates[currency];
-        const conversionAmount = conversionAmounts[currency];
+        const rate = currencyRates?.[currency] ?? 0;
+        const conversionAmount = conversionAmounts[currency] ?? 0;
         return (
           <CurrencyDetailContainer
             currencyName={currency}

@@ -30,7 +30,6 @@ export const getStoredCurrencyConversionRates = async (key: string) => {
     if (storedConversionRates !== null) {
       return JSON.parse(storedConversionRates);
     } else {
-      console.log('storedConversionRates is null');
       return null;
     }
   } catch (error) {
@@ -58,4 +57,17 @@ export const numberWithCommas = (num: string) => {
  */
 export const cleanCommas = (num: string) => {
   return String(num).replace(/[^0-9.]/g, '');
+};
+
+/**
+ *
+ * @param num
+ * @returns boolean value
+ *
+ * To check if a number is valid
+ */
+export const checkIncorrectInput = (num: string) => {
+  const regex = /\./g;
+  const matches = num.match(regex);
+  return matches && matches.length > 1;
 };

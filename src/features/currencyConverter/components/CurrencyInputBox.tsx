@@ -18,6 +18,8 @@ interface Props {
   amount: string;
   setAmount: Dispatch<SetStateAction<string>>;
   onConvertPress: () => void;
+  hasError: boolean;
+  setHasError: Dispatch<SetStateAction<boolean>>;
 }
 
 const CurrencyInputBox: FC<Props> = ({
@@ -25,6 +27,8 @@ const CurrencyInputBox: FC<Props> = ({
   amount,
   setAmount,
   onConvertPress,
+  hasError,
+  setHasError,
 }) => {
   const onFocusAmount = () => {
     if (amount?.length === 0) {
@@ -39,6 +43,7 @@ const CurrencyInputBox: FC<Props> = ({
   };
 
   const _onChangeText = (text: string) => {
+    setHasError(false);
     let textCleaned = cleanCommas(text);
     let textFormatted = `${
       DOLLAR_CURRENCIES_SYMBOL + numberWithCommas(textCleaned ?? '')
@@ -47,22 +52,31 @@ const CurrencyInputBox: FC<Props> = ({
     setAmount(textFormatted);
   };
   return (
-    <View style={[styles.container, containerStyle]}>
-      <View style={styles.labelContainer}>
-        <Text>AUD</Text>
+    <View style={styles.container}>
+      <View style={[containerStyle, hasError && styles.error]}>
+        <View style={styles.labelContainer}>
+          <Text>AUD</Text>
+        </View>
+        <TextInput
+          value={amount}
+          onChangeText={_onChangeText}
+          placeholder="Enter amount in AUD"
+          keyboardType="numeric"
+          style={styles.textInput}
+          onFocus={onFocusAmount}
+          onBlur={onBlurAmount}
+        />
+        <Pressable
+          onPress={onConvertPress}
+          style={styles.convertButtonContainer}>
+          <Image source={CalculatorIcon} style={styles.calculatorIcon} />
+        </Pressable>
       </View>
-      <TextInput
-        value={amount}
-        onChangeText={_onChangeText}
-        placeholder="Enter amount in AUD"
-        keyboardType="numeric"
-        style={styles.textInput}
-        onFocus={onFocusAmount}
-        onBlur={onBlurAmount}
-      />
-      <Pressable onPress={onConvertPress} style={styles.convertButtonContainer}>
-        <Image source={CalculatorIcon} style={styles.calculatorIcon} />
-      </Pressable>
+      {hasError && (
+        <View>
+          <Text style={styles.errorText}>Please enter a valid amount</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -91,6 +105,13 @@ const styles = StyleSheet.create({
   calculatorIcon: {
     height: 30,
     width: 30,
+  },
+  error: {
+    borderColor: '#f00',
+  },
+  errorText: {
+    color: '#f00',
+    marginTop: 10,
   },
 });
 
